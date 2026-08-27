@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A private, browser-based job application tracker with stages, follow-ups, analytics, and CSV backup."
+    />
+    <title>Application Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">A</div>
+          <div>
+            <p class="eyebrow">CAREER HQ</p>
+            <h1>Application<br />Tracker</h1>
+          </div>
+        </div>
+
+        <nav class="stage-nav" aria-label="Application stages">
+          <button class="stage-filter active" data-stage="All">
+            <span class="stage-icon">⌂</span><span>All applications</span><span class="stage-count" id="count-all">0</span>
+          </button>
+          <button class="stage-filter" data-stage="Wishlist">
+            <span class="stage-dot wishlist"></span><span>Wishlist</span><span class="stage-count" id="count-wishlist">0</span>
+          </button>
+          <button class="stage-filter" data-stage="Applied">
+            <span class="stage-dot applied"></span><span>Applied</span><span class="stage-count" id="count-applied">0</span>
+          </button>
+          <button class="stage-filter" data-stage="Assessment">
+            <span class="stage-dot assessment"></span><span>Assessment</span><span class="stage-count" id="count-assessment">0</span>
+          </button>
+          <button class="stage-filter" data-stage="Interview">
+            <span class="stage-dot interview"></span><span>Interview</span><span class="stage-count" id="count-interview">0</span>
+          </button>
+          <button class="stage-filter" data-stage="Offer">
+            <span class="stage-dot offer"></span><span>Offer</span><span class="stage-count" id="count-offer">0</span>
+          </button>
+          <button class="stage-filter" data-stage="Rejected">
+            <span class="stage-dot rejected"></span><span>Rejected</span><span class="stage-count" id="count-rejected">0</span>
+          </button>
+          <button class="stage-filter" data-stage="Withdrawn">
+            <span class="stage-dot withdrawn"></span><span>Withdrawn</span><span class="stage-count" id="count-withdrawn">0</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <p>Your data stays in this browser.</p>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow" id="today-label"></p>
+            <h2 id="page-title">Your pipeline</h2>
+            <p class="subtitle">Stay on top of every application and next move.</p>
+          </div>
+        </header>
+        <section class="workspace-card">
+          <div class="workspace-toolbar">
+            <div class="toolbar-actions">
+            </div>
+          </div>
+          <div id="empty-state" class="empty-state" hidden>
+            <div class="empty-illustration" aria-hidden="true">
+              <span>✓</span>
+            </div>
+            <h3>No applications here yet</h3>
+            <p>Add your first opportunity or load demo data to explore the tracker.</p>
+            <div class="empty-actions">
+            </div>
+          </div>
+
+          <footer class="workspace-footer">
+            <span id="result-count">0 applications</span>
+            <span id="last-saved">All changes saved locally</span>
+          </footer>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

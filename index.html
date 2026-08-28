@@ -66,6 +66,9 @@
             <h2 id="page-title">Your pipeline</h2>
             <p class="subtitle">Stay on top of every application and next move.</p>
           </div>
+          <button id="add-application" class="primary-button" type="button">
+            <span aria-hidden="true">＋</span> Add application
+          </button>
         </header>
         <section class="workspace-card">
           <div class="workspace-toolbar">
@@ -79,6 +82,7 @@
             <h3>No applications here yet</h3>
             <p>Add your first opportunity or load demo data to explore the tracker.</p>
             <div class="empty-actions">
+              <button class="primary-button" id="empty-add" type="button">Add application</button>
             </div>
           </div>
 
@@ -89,6 +93,99 @@
         </section>
       </main>
     </div>
+
+    <dialog id="application-dialog">
+      <form id="application-form" method="dialog">
+        <div class="dialog-header">
+          <div>
+            <p class="eyebrow">OPPORTUNITY</p>
+            <h2 id="dialog-title">Add application</h2>
+          </div>
+          <button id="close-dialog" class="icon-button" type="button" aria-label="Close">×</button>
+        </div>
+
+        <input id="application-id" type="hidden" />
+        <div class="form-grid">
+          <label class="field wide">
+            <span>Company *</span>
+            <input id="company" name="company" required autocomplete="organization" placeholder="e.g. Cloudflare" />
+          </label>
+          <label class="field wide">
+            <span>Role *</span>
+            <input id="role" name="role" required placeholder="e.g. Software Engineer, Realtime" />
+          </label>
+          <label class="field">
+            <span>Status</span>
+            <select id="status" name="status">
+              <option>Wishlist</option>
+              <option selected>Applied</option>
+              <option>Assessment</option>
+              <option>Interview</option>
+              <option>Offer</option>
+              <option>Rejected</option>
+              <option>Withdrawn</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Priority</span>
+            <select id="priority" name="priority">
+              <option>High</option>
+              <option selected>Medium</option>
+              <option>Low</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Date applied</span>
+            <input id="date-applied" name="dateApplied" type="date" />
+          </label>
+          <label class="field">
+            <span>Follow-up / deadline</span>
+            <input id="deadline" name="deadline" type="date" />
+          </label>
+          <label class="field wide">
+            <span>Next action</span>
+            <input id="next-action" name="nextAction" placeholder="e.g. Send recruiter follow-up" />
+          </label>
+          <label class="field">
+            <span>Location</span>
+            <input id="location" name="location" placeholder="New York, NY" />
+          </label>
+          <label class="field">
+            <span>Work mode</span>
+            <select id="work-mode" name="workMode">
+              <option value="">Not specified</option>
+              <option>Remote</option>
+              <option>Hybrid</option>
+              <option>On-site</option>
+            </select>
+          </label>
+          <label class="field wide">
+            <span>Job posting URL</span>
+            <input id="job-url" name="jobUrl" type="url" placeholder="https://…" />
+          </label>
+          <label class="field">
+            <span>Recruiter / contact</span>
+            <input id="contact" name="contact" placeholder="Name or email" />
+          </label>
+          <label class="field">
+            <span>Compensation</span>
+            <input id="compensation" name="compensation" placeholder="$140k–$170k" />
+          </label>
+          <label class="field wide">
+            <span>Notes</span>
+            <textarea id="notes" name="notes" rows="4" placeholder="Interview details, referrals, prep notes…"></textarea>
+          </label>
+        </div>
+
+        <div class="dialog-actions">
+          <button id="delete-application" class="danger-button" type="button" hidden>Delete</button>
+          <span class="action-spacer"></span>
+          <button id="cancel-dialog" class="secondary-button" type="button">Cancel</button>
+          <button class="primary-button" type="submit">Save application</button>
+        </div>
+      </form>
+    </dialog>
+
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
     <script src="app.js" defer></script>
   </body>

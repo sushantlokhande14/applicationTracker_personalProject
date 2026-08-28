@@ -7,6 +7,14 @@ const STAGES = ["Wishlist", "Applied", "Assessment", "Interview", "Offer", "Reje
 const els = {
   body: document.body,
   todayLabel: document.querySelector("#today-label"),
+  addButton: document.querySelector("#add-application"),
+  emptyAdd: document.querySelector("#empty-add"),
+  dialog: document.querySelector("#application-dialog"),
+  form: document.querySelector("#application-form"),
+  dialogTitle: document.querySelector("#dialog-title"),
+  closeDialog: document.querySelector("#close-dialog"),
+  cancelDialog: document.querySelector("#cancel-dialog"),
+  id: document.querySelector("#application-id"),
   emptyState: document.querySelector("#empty-state"),
   resultCount: document.querySelector("#result-count"),
   lastSaved: document.querySelector("#last-saved"),
@@ -92,6 +100,66 @@ function render() {
   els.resultCount.textContent = `${applications.length} application${applications.length === 1 ? "" : "s"}`;
 }
 
+function openDialog(item = null) {
+  els.form.reset();
+  els.id.value = item?.id || "";
+  els.dialogTitle.textContent = item ? "Edit application" : "Add application";
+  els.deleteButton.hidden = !item;
+
+  const defaults = {
+    company: "",
+    role: "",
+    status: "Applied",
+    priority: "Medium",
+    dateApplied: localDateValue(),
+    deadline: "",
+    nextAction: "",
+    location: "",
+    workMode: "",
+    jobUrl: "",
+    contact: "",
+    compensation: "",
+    notes: "",
+    ...item,
+  };
+
+  Object.entries(defaults).forEach(([key, value]) => {
+    const field = els.form.elements.namedItem(key);
+    if (field) field.value = value ?? "";
+  });
+
+  els.dialog.showModal();
+  requestAnimationFrame(() => document.querySelector("#company").focus());
+}
+
+function closeDialog() {
+  els.dialog.close();
+}
+
+function formToApplication() {
+  const data = new FormData(els.form);
+  const now = new Date().toISOString();
+  const existing = applications.find((item) => item.id === els.id.value);
+  return {
+    id: els.id.value || uid(),
+    company: String(data.get("company") || "").trim(),
+    role: String(data.get("role") || "").trim(),
+    status: String(data.get("status") || "Applied"),
+    priority: String(data.get("priority") || "Medium"),
+    dateApplied: String(data.get("dateApplied") || ""),
+    deadline: String(data.get("deadline") || ""),
+    nextAction: String(data.get("nextAction") || "").trim(),
+    location: String(data.get("location") || "").trim(),
+    workMode: String(data.get("workMode") || ""),
+    jobUrl: String(data.get("jobUrl") || "").trim(),
+    contact: String(data.get("contact") || "").trim(),
+    compensation: String(data.get("compensation") || "").trim(),
+    notes: String(data.get("notes") || "").trim(),
+    createdAt: existing?.createdAt || now,
+    updatedAt: now,
+  };
+}
+
 function showToast(message) {
   clearTimeout(toastTimer);
   els.toast.textContent = message;
@@ -100,5 +168,24 @@ function showToast(message) {
 }
 
 els.todayLabel.textContent = new Date().toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" }).toUpperCase();
+
+[els.addButton, els.emptyAdd].forEach((button) => button.addEventListener("click", () => openDialog()));
+
+[els.closeDialog, els.cancelDialog].forEach((button) => button.addEventListener("click", closeDialog));
+
+els.form.addEventListener("submit", (event) => {
+  event.preventDefault();
+  if (!els.form.reportValidity()) return;
+  const item = formToApplication();
+  const index = applications.findIndex((entry) => entry.id === item.id);
+  if (index >= 0) applications[index] = item;
+  else applications.unshift(item);
+  closeDialog();
+  saveApplications(index >= 0 ? "Application updated" : "Application added");
+});
+
+els.dialog.addEventListener("click", (event) => {
+  if (event.target === els.dialog) closeDialog();
+});
 
 render();

@@ -224,6 +224,21 @@ textarea:focus-visible {
   font-size: 14px;
 }
 
+.primary-button,
+.secondary-button,
+.danger-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  transition: 160ms ease;
+}
+
 .primary-button {
   border: 1px solid var(--accent);
   color: white;
@@ -245,6 +260,12 @@ textarea:focus-visible {
 
 .secondary-button:hover {
   background: var(--surface-soft);
+}
+
+.danger-button {
+  border: 1px solid color-mix(in srgb, #df4057 35%, var(--border));
+  color: #d93f55;
+  background: color-mix(in srgb, #df4057 7%, var(--surface));
 }
 
 .accent-purple { color: #7762ed; }
@@ -279,6 +300,18 @@ textarea:focus-visible {
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
+}
+
+.icon-button {
+  display: inline-grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--muted);
+  background: var(--surface);
+  font-weight: 700;
 }
 
 .status-wishlist { --status-color: #7d8292; }
@@ -353,6 +386,92 @@ textarea:focus-visible {
   color: var(--faint);
   font-size: 10px;
 }
+
+dialog {
+  width: min(720px, calc(100vw - 30px));
+  max-height: calc(100vh - 30px);
+  overflow: auto;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  color: var(--text);
+  background: var(--surface-raised);
+  box-shadow: 0 30px 90px rgba(16, 14, 35, 0.35);
+}
+
+dialog::backdrop {
+  background: rgba(12, 10, 22, 0.62);
+  backdrop-filter: blur(5px);
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 23px 26px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.dialog-header h2 {
+  margin: 0;
+  font-family: "Manrope", sans-serif;
+  font-size: 22px;
+  letter-spacing: -0.03em;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding: 24px 26px;
+}
+
+.field {
+  display: grid;
+  gap: 7px;
+}
+
+.field.wide {
+  grid-column: 1 / -1;
+}
+
+.field > span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 10px 11px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--text);
+  background: var(--surface);
+  font-size: 13px;
+}
+
+.field input,
+.field select {
+  height: 42px;
+}
+
+.field textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.dialog-actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 17px 26px 22px;
+  border-top: 1px solid var(--border);
+}
+
+.action-spacer { flex: 1; }
 
 .toast {
   position: fixed;

@@ -14,7 +14,10 @@ const els = {
   dialogTitle: document.querySelector("#dialog-title"),
   closeDialog: document.querySelector("#close-dialog"),
   cancelDialog: document.querySelector("#cancel-dialog"),
+  deleteButton: document.querySelector("#delete-application"),
   id: document.querySelector("#application-id"),
+  tableBody: document.querySelector("#application-table-body"),
+  tableView: document.querySelector("#table-view"),
   emptyState: document.querySelector("#empty-state"),
   resultCount: document.querySelector("#result-count"),
   lastSaved: document.querySelector("#last-saved"),
@@ -94,10 +97,74 @@ function safeUrl(value = "") {
   }
 }
 
+function avatarGradient(company) {
+  const palettes = [
+    ["#7a68ed", "#513bc2"],
+    ["#2e9f89", "#187263"],
+    ["#e28b48", "#bd5d31"],
+    ["#4f8ce8", "#3c5db8"],
+    ["#d95c7b", "#9d3551"],
+    ["#8058bb", "#573584"],
+  ];
+  const score = [...String(company)].reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  const [start, end] = palettes[score % palettes.length];
+  return `linear-gradient(135deg, ${start}, ${end})`;
+}
+
+function statusClass(status) {
+  return `status-${String(status).toLowerCase()}`;
+}
+
+function getFilteredApplications() {
+  return [...applications].sort((a, b) => (b.updatedAt || "").localeCompare(a.updatedAt || ""));
+}
+
 function render() {
-  const isEmpty = applications.length === 0;
+  const filtered = getFilteredApplications();
+  renderTable(filtered);
+
+  const isEmpty = filtered.length === 0;
   els.emptyState.hidden = !isEmpty;
-  els.resultCount.textContent = `${applications.length} application${applications.length === 1 ? "" : "s"}`;
+  els.tableView.hidden = isEmpty;
+  els.resultCount.textContent = `${filtered.length} application${filtered.length === 1 ? "" : "s"}`;
+}
+
+function renderTable(items) {
+  els.tableBody.innerHTML = items.map((item) => {
+    const deadline = deadlineLabel(item.deadline);
+    const companyInitial = escapeHtml(item.company.trim().charAt(0).toUpperCase() || "?");
+    const url = safeUrl(item.jobUrl);
+    const companyContent = `
+      <div class="company-avatar" style="background:${avatarGradient(item.company)}">${companyInitial}</div>
+      <div class="company-copy">
+        <strong>${escapeHtml(item.company)}</strong>
+        <span>${escapeHtml(item.role)}${item.location ? ` · ${escapeHtml(item.location)}` : ""}</span>
+      </div>`;
+    return `
+      <tr data-id="${escapeHtml(item.id)}">
+        <td>${url
+          ? `<a class="company-link company-cell" href="${escapeHtml(url)}" target="_blank" rel="noreferrer">${companyContent}</a>`
+          : `<div class="company-cell">${companyContent}</div>`}
+        </td>
+        <td><span class="status-pill ${statusClass(item.status)}">${escapeHtml(item.status)}</span></td>
+        <td class="date-cell">${formatDate(item.dateApplied)}</td>
+        <td class="action-cell">
+          <strong>${escapeHtml(item.nextAction || "No next action")}</strong>
+          <span class="deadline ${deadline.overdue ? "overdue" : ""}">${escapeHtml(deadline.text)}</span>
+        </td>
+        <td><span class="priority-pill priority-${escapeHtml(item.priority.toLowerCase())}">${escapeHtml(item.priority)}</span></td>
+        <td>
+          <div class="row-actions">
+            <button class="icon-button row-menu-button" type="button" aria-label="Actions for ${escapeHtml(item.company)}" aria-expanded="false">•••</button>
+            <div class="row-menu" hidden>
+              <button data-action="edit" type="button">Edit</button>
+              <button data-action="duplicate" type="button">Duplicate</button>
+              <button data-action="delete" type="button">Delete</button>
+            </div>
+          </div>
+        </td>
+      </tr>`;
+  }).join("");
 }
 
 function openDialog(item = null) {
@@ -160,11 +227,34 @@ function formToApplication() {
   };
 }
 
+function deleteApplication(id) {
+  const item = applications.find((entry) => entry.id === id);
+  if (!item || !confirm(`Delete the ${item.role} application at ${item.company}?`)) return;
+  applications = applications.filter((entry) => entry.id !== id);
+  if (els.dialog.open) closeDialog();
+  saveApplications("Application deleted");
+}
+
+function duplicateApplication(id) {
+  const item = applications.find((entry) => entry.id === id);
+  if (!item) return;
+  const now = new Date().toISOString();
+  applications.unshift({ ...item, id: uid(), company: `${item.company} (copy)`, createdAt: now, updatedAt: now });
+  saveApplications("Application duplicated");
+}
+
 function showToast(message) {
   clearTimeout(toastTimer);
   els.toast.textContent = message;
   els.toast.classList.add("show");
   toastTimer = setTimeout(() => els.toast.classList.remove("show"), 2600);
+}
+
+function closeMenus() {
+  els.moreMenu.hidden = true;
+  els.moreButton.setAttribute("aria-expanded", "false");
+  document.querySelectorAll(".row-menu").forEach((menu) => { menu.hidden = true; });
+  document.querySelectorAll(".row-menu-button").forEach((button) => button.setAttribute("aria-expanded", "false"));
 }
 
 els.todayLabel.textContent = new Date().toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" }).toUpperCase();
@@ -182,6 +272,32 @@ els.form.addEventListener("submit", (event) => {
   else applications.unshift(item);
   closeDialog();
   saveApplications(index >= 0 ? "Application updated" : "Application added");
+});
+
+els.deleteButton.addEventListener("click", () => deleteApplication(els.id.value));
+
+els.tableBody.addEventListener("click", (event) => {
+  const row = event.target.closest("tr[data-id]");
+  if (!row) return;
+  const id = row.dataset.id;
+  const menuButton = event.target.closest(".row-menu-button");
+  if (menuButton) {
+    event.stopPropagation();
+    const menu = row.querySelector(".row-menu");
+    const willOpen = menu.hidden;
+    closeMenus();
+    menu.hidden = !willOpen;
+    menuButton.setAttribute("aria-expanded", String(willOpen));
+    return;
+  }
+  const action = event.target.closest("[data-action]")?.dataset.action;
+  if (action === "edit") openDialog(applications.find((item) => item.id === id));
+  if (action === "duplicate") duplicateApplication(id);
+  if (action === "delete") deleteApplication(id);
+});
+
+document.addEventListener("click", (event) => {
+  if (!event.target.closest(".menu-wrap") && !event.target.closest(".row-actions")) closeMenus();
 });
 
 els.dialog.addEventListener("click", (event) => {

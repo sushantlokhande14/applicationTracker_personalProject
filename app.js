@@ -6,6 +6,7 @@ const STAGES = ["Wishlist", "Applied", "Assessment", "Interview", "Offer", "Reje
 
 const els = {
   body: document.body,
+  pageTitle: document.querySelector("#page-title"),
   todayLabel: document.querySelector("#today-label"),
   addButton: document.querySelector("#add-application"),
   emptyAdd: document.querySelector("#empty-add"),
@@ -25,6 +26,8 @@ const els = {
 };
 
 let applications = readApplications();
+
+let activeStage = "All";
 
 let toastTimer;
 
@@ -116,10 +119,13 @@ function statusClass(status) {
 }
 
 function getFilteredApplications() {
-  return [...applications].sort((a, b) => (b.updatedAt || "").localeCompare(a.updatedAt || ""));
+  return applications
+    .filter((item) => activeStage === "All" || item.status === activeStage)
+    .sort((a, b) => (b.updatedAt || "").localeCompare(a.updatedAt || ""));
 }
 
 function render() {
+  updateCounts();
   const filtered = getFilteredApplications();
   renderTable(filtered);
 
@@ -127,6 +133,14 @@ function render() {
   els.emptyState.hidden = !isEmpty;
   els.tableView.hidden = isEmpty;
   els.resultCount.textContent = `${filtered.length} application${filtered.length === 1 ? "" : "s"}`;
+}
+
+function updateCounts() {
+  document.querySelector("#count-all").textContent = applications.length;
+  STAGES.forEach((stage) => {
+    const id = `#count-${stage.toLowerCase()}`;
+    document.querySelector(id).textContent = applications.filter((item) => item.status === stage).length;
+  });
 }
 
 function renderTable(items) {
@@ -275,6 +289,15 @@ els.form.addEventListener("submit", (event) => {
 });
 
 els.deleteButton.addEventListener("click", () => deleteApplication(els.id.value));
+
+document.querySelectorAll(".stage-filter").forEach((button) => {
+  button.addEventListener("click", () => {
+    activeStage = button.dataset.stage;
+    document.querySelectorAll(".stage-filter").forEach((item) => item.classList.toggle("active", item === button));
+    els.pageTitle.textContent = activeStage === "All" ? "Your pipeline" : activeStage;
+    render();
+  });
+});
 
 els.tableBody.addEventListener("click", (event) => {
   const row = event.target.closest("tr[data-id]");

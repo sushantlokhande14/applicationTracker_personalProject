@@ -268,6 +268,36 @@ textarea:focus-visible {
   background: color-mix(in srgb, #df4057 7%, var(--surface));
 }
 
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.metric-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 142px;
+  padding: 19px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: 0 7px 24px rgba(31, 29, 54, 0.035);
+}
+
+.metric-card::after {
+  position: absolute;
+  top: -22px;
+  right: -20px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: currentColor;
+  content: "";
+  opacity: 0.05;
+}
+
 .accent-purple { color: #7762ed; }
 
 .accent-blue { color: #4687e8; }
@@ -275,6 +305,41 @@ textarea:focus-visible {
 .accent-green { color: #2ba970; }
 
 .accent-orange { color: #dc8735; }
+
+.metric-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.metric-icon {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border-radius: 8px;
+  color: currentColor;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  font-size: 14px;
+}
+
+.metric-card strong {
+  display: block;
+  margin: 12px 0 5px;
+  color: var(--text);
+  font-family: "Manrope", sans-serif;
+  font-size: 29px;
+  letter-spacing: -0.04em;
+}
+
+.metric-card small {
+  color: var(--faint);
+  font-size: 10px;
+}
 
 .workspace-card {
   overflow: visible;

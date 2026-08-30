@@ -27,6 +27,12 @@ const els = {
   resultCount: document.querySelector("#result-count"),
   lastSaved: document.querySelector("#last-saved"),
   toast: document.querySelector("#toast"),
+  metricTotal: document.querySelector("#metric-total"),
+  metricThisWeek: document.querySelector("#metric-this-week"),
+  metricInterviews: document.querySelector("#metric-interviews"),
+  metricUpcoming: document.querySelector("#metric-upcoming"),
+  metricOffers: document.querySelector("#metric-offers"),
+  metricResponse: document.querySelector("#metric-response"),
 };
 
 let applications = readApplications();
@@ -156,6 +162,7 @@ function getFilteredApplications() {
 
 function render() {
   updateCounts();
+  updateMetrics();
   const filtered = getFilteredApplications();
   renderTable(filtered);
   renderBoard(filtered);
@@ -173,6 +180,33 @@ function updateCounts() {
     const id = `#count-${stage.toLowerCase()}`;
     document.querySelector(id).textContent = applications.filter((item) => item.status === stage).length;
   });
+}
+
+function updateMetrics() {
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  const thisWeek = applications.filter((item) => {
+    const date = parseDate(item.dateApplied);
+    return date && date >= weekAgo;
+  }).length;
+  const interviews = applications.filter((item) => item.status === "Interview").length;
+  const offers = applications.filter((item) => item.status === "Offer").length;
+  const appliedPool = applications.filter((item) => item.status !== "Wishlist").length;
+  const responses = applications.filter((item) => ["Assessment", "Interview", "Offer"].includes(item.status)).length;
+  const responseRate = appliedPool ? Math.round((responses / appliedPool) * 100) : 0;
+  const upcoming = applications
+    .map((item) => daysUntil(item.deadline))
+    .filter((days) => days !== null && days >= 0)
+    .sort((a, b) => a - b)[0];
+
+  els.metricTotal.textContent = applications.length;
+  els.metricThisWeek.textContent = `${thisWeek} added this week`;
+  els.metricInterviews.textContent = interviews;
+  els.metricOffers.textContent = offers;
+  els.metricResponse.textContent = `${responseRate}%`;
+  els.metricUpcoming.textContent = upcoming === undefined
+    ? "No upcoming deadlines"
+    : upcoming === 0 ? "Deadline today" : `Next deadline in ${upcoming} day${upcoming === 1 ? "" : "s"}`;
 }
 
 function renderTable(items) {

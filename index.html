@@ -73,6 +73,22 @@
         <section class="workspace-card">
           <div class="workspace-toolbar">
             <div class="toolbar-actions">
+              <label class="search-field">
+                <span aria-hidden="true">⌕</span>
+                <input id="search-input" type="search" placeholder="Search company, role, contact…" />
+              </label>
+              <select id="priority-filter" aria-label="Filter by priority">
+                <option value="All">All priorities</option>
+                <option value="High">High priority</option>
+                <option value="Medium">Medium priority</option>
+                <option value="Low">Low priority</option>
+              </select>
+              <select id="sort-select" aria-label="Sort applications">
+                <option value="updated-desc">Recently updated</option>
+                <option value="date-desc">Newest application</option>
+                <option value="deadline-asc">Next deadline</option>
+                <option value="company-asc">Company A–Z</option>
+              </select>
             </div>
           </div>
 

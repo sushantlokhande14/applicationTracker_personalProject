@@ -20,6 +20,9 @@ const els = {
   tableBody: document.querySelector("#application-table-body"),
   tableView: document.querySelector("#table-view"),
   emptyState: document.querySelector("#empty-state"),
+  search: document.querySelector("#search-input"),
+  priorityFilter: document.querySelector("#priority-filter"),
+  sort: document.querySelector("#sort-select"),
   resultCount: document.querySelector("#result-count"),
   lastSaved: document.querySelector("#last-saved"),
   toast: document.querySelector("#toast"),
@@ -119,9 +122,33 @@ function statusClass(status) {
 }
 
 function getFilteredApplications() {
-  return applications
-    .filter((item) => activeStage === "All" || item.status === activeStage)
-    .sort((a, b) => (b.updatedAt || "").localeCompare(a.updatedAt || ""));
+  const query = els.search.value.trim().toLowerCase();
+  const priority = els.priorityFilter.value;
+
+  const filtered = applications.filter((item) => {
+    const stageMatches = activeStage === "All" || item.status === activeStage;
+    const priorityMatches = priority === "All" || item.priority === priority;
+    const haystack = [item.company, item.role, item.location, item.contact, item.notes, item.nextAction]
+      .join(" ")
+      .toLowerCase();
+    return stageMatches && priorityMatches && (!query || haystack.includes(query));
+  });
+
+  return filtered.sort((a, b) => {
+    switch (els.sort.value) {
+      case "date-desc":
+        return (b.dateApplied || "").localeCompare(a.dateApplied || "");
+      case "deadline-asc": {
+        const aDate = a.deadline || "9999-12-31";
+        const bDate = b.deadline || "9999-12-31";
+        return aDate.localeCompare(bDate);
+      }
+      case "company-asc":
+        return a.company.localeCompare(b.company);
+      default:
+        return (b.updatedAt || "").localeCompare(a.updatedAt || "");
+    }
+  });
 }
 
 function render() {
@@ -298,6 +325,8 @@ document.querySelectorAll(".stage-filter").forEach((button) => {
     render();
   });
 });
+
+[els.search, els.priorityFilter, els.sort].forEach((control) => control.addEventListener("input", render));
 
 els.tableBody.addEventListener("click", (event) => {
   const row = event.target.closest("tr[data-id]");

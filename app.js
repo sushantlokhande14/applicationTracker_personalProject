@@ -19,6 +19,7 @@ const els = {
   id: document.querySelector("#application-id"),
   tableBody: document.querySelector("#application-table-body"),
   tableView: document.querySelector("#table-view"),
+  boardView: document.querySelector("#board-view"),
   emptyState: document.querySelector("#empty-state"),
   search: document.querySelector("#search-input"),
   priorityFilter: document.querySelector("#priority-filter"),
@@ -31,6 +32,8 @@ const els = {
 let applications = readApplications();
 
 let activeStage = "All";
+
+let currentView = "table";
 
 let toastTimer;
 
@@ -155,10 +158,12 @@ function render() {
   updateCounts();
   const filtered = getFilteredApplications();
   renderTable(filtered);
+  renderBoard(filtered);
 
   const isEmpty = filtered.length === 0;
   els.emptyState.hidden = !isEmpty;
-  els.tableView.hidden = isEmpty;
+  els.tableView.hidden = isEmpty || currentView !== "table";
+  els.boardView.hidden = isEmpty || currentView !== "board";
   els.resultCount.textContent = `${filtered.length} application${filtered.length === 1 ? "" : "s"}`;
 }
 
@@ -205,6 +210,33 @@ function renderTable(items) {
           </div>
         </td>
       </tr>`;
+  }).join("");
+}
+
+function renderBoard(items) {
+  els.boardView.innerHTML = STAGES.map((stage) => {
+    const stageItems = items.filter((item) => item.status === stage);
+    const cards = stageItems.map((item) => {
+      const deadline = deadlineLabel(item.deadline);
+      return `
+        <article class="board-card" data-id="${escapeHtml(item.id)}" tabindex="0">
+          <div class="board-card-top">
+            <div class="company-avatar" style="background:${avatarGradient(item.company)}">${escapeHtml(item.company.charAt(0).toUpperCase())}</div>
+            <span class="priority-pill priority-${escapeHtml(item.priority.toLowerCase())}">${escapeHtml(item.priority)}</span>
+          </div>
+          <h4>${escapeHtml(item.company)}</h4>
+          <span class="role">${escapeHtml(item.role)}</span>
+          <div class="board-card-meta">
+            <span>${escapeHtml(item.nextAction || "No next action")}</span>
+            <span class="${deadline.overdue ? "deadline overdue" : ""}">${escapeHtml(deadline.text)}</span>
+          </div>
+        </article>`;
+    }).join("");
+    return `
+      <section class="board-column">
+        <div class="board-column-header"><h3>${escapeHtml(stage)}</h3><span>${stageItems.length}</span></div>
+        <div class="board-list">${cards || '<div class="board-empty">No applications</div>'}</div>
+      </section>`;
   }).join("");
 }
 
@@ -326,6 +358,18 @@ document.querySelectorAll(".stage-filter").forEach((button) => {
   });
 });
 
+document.querySelectorAll(".view-tab").forEach((button) => {
+  button.addEventListener("click", () => {
+    currentView = button.dataset.view;
+    document.querySelectorAll(".view-tab").forEach((item) => {
+      const active = item === button;
+      item.classList.toggle("active", active);
+      item.setAttribute("aria-selected", String(active));
+    });
+    render();
+  });
+});
+
 [els.search, els.priorityFilter, els.sort].forEach((control) => control.addEventListener("input", render));
 
 els.tableBody.addEventListener("click", (event) => {
@@ -346,6 +390,20 @@ els.tableBody.addEventListener("click", (event) => {
   if (action === "edit") openDialog(applications.find((item) => item.id === id));
   if (action === "duplicate") duplicateApplication(id);
   if (action === "delete") deleteApplication(id);
+});
+
+els.boardView.addEventListener("click", (event) => {
+  const card = event.target.closest(".board-card[data-id]");
+  if (card) openDialog(applications.find((item) => item.id === card.dataset.id));
+});
+
+els.boardView.addEventListener("keydown", (event) => {
+  if (!["Enter", " "].includes(event.key)) return;
+  const card = event.target.closest(".board-card[data-id]");
+  if (card) {
+    event.preventDefault();
+    openDialog(applications.find((item) => item.id === card.dataset.id));
+  }
 });
 
 document.addEventListener("click", (event) => {

@@ -72,6 +72,11 @@
         </header>
         <section class="workspace-card">
           <div class="workspace-toolbar">
+            <div class="view-tabs" role="tablist" aria-label="Application view">
+              <button class="view-tab active" data-view="table" role="tab" aria-selected="true">List</button>
+              <button class="view-tab" data-view="board" role="tab" aria-selected="false">Board</button>
+            </div>
+
             <div class="toolbar-actions">
               <label class="search-field">
                 <span aria-hidden="true">⌕</span>
@@ -109,6 +114,9 @@
               </table>
             </div>
           </div>
+
+          <div id="board-view" class="board-view" hidden></div>
+
           <div id="empty-state" class="empty-state" hidden>
             <div class="empty-illustration" aria-hidden="true">
               <span>✓</span>

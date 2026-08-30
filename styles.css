@@ -294,6 +294,31 @@ textarea:focus-visible {
   border-bottom: 1px solid var(--border);
 }
 
+.view-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 10px;
+  background: var(--surface-soft);
+}
+
+.view-tab {
+  min-height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 7px;
+  color: var(--muted);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.view-tab.active {
+  color: var(--text);
+  background: var(--surface-raised);
+  box-shadow: 0 2px 8px rgba(20, 18, 40, 0.08);
+}
+
 .toolbar-actions {
   display: flex;
   min-width: 0;
@@ -412,6 +437,22 @@ tbody tr:hover {
   font-family: "Manrope", sans-serif;
   font-size: 14px;
   font-weight: 800;
+}
+
+.company-copy strong,
+.board-card h4 {
+  display: block;
+  margin: 0;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.company-copy span,
+.board-card .role {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11px;
 }
 
 .company-link {
@@ -546,12 +587,98 @@ tbody tr:hover {
 
 .row-menu button:last-child { color: #d84058; }
 
+.board-view {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(240px, 1fr));
+  gap: 12px;
+  overflow-x: auto;
+  padding: 18px;
+}
+
+.board-column {
+  min-height: 360px;
+  padding: 10px;
+  border-radius: 13px;
+  background: var(--surface-soft);
+}
+
+.board-column-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 2px 4px 8px;
+}
+
+.board-column-header h3 {
+  margin: 0;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.board-column-header span {
+  display: grid;
+  min-width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 99px;
+  color: var(--muted);
+  background: var(--surface);
+  font-size: 10px;
+}
+
+.board-list {
+  display: grid;
+  gap: 9px;
+}
+
+.board-card {
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: var(--surface);
+  box-shadow: 0 4px 14px rgba(22, 19, 42, 0.04);
+  cursor: pointer;
+}
+
+.board-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+  transform: translateY(-1px);
+}
+
+.board-card-top,
+.board-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.board-card-top {
+  margin-bottom: 12px;
+}
+
 .board-card .company-avatar {
   width: 32px;
   height: 32px;
   flex-basis: 32px;
   border-radius: 9px;
   font-size: 12px;
+}
+
+.board-card-meta {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  color: var(--faint);
+  font-size: 10px;
+}
+
+.board-empty {
+  padding: 34px 8px;
+  color: var(--faint);
+  text-align: center;
+  font-size: 11px;
 }
 
 .empty-state {

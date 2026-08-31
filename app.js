@@ -1,7 +1,7 @@
 "use strict";
 
 const STORAGE_KEY = "application-tracker.entries.v1";
-
+const THEME_KEY = "application-tracker.theme";
 const STAGES = ["Wishlist", "Applied", "Assessment", "Interview", "Offer", "Rejected", "Withdrawn"];
 
 const els = {
@@ -34,6 +34,9 @@ const els = {
   csvFile: document.querySelector("#csv-file"),
   loadDemo: document.querySelector("#load-demo"),
   clearData: document.querySelector("#clear-data"),
+  themeToggle: document.querySelector("#theme-toggle"),
+  themeIcon: document.querySelector("#theme-icon"),
+  themeLabel: document.querySelector("#theme-label"),
   toast: document.querySelector("#toast"),
   metricTotal: document.querySelector("#metric-total"),
   metricThisWeek: document.querySelector("#metric-this-week"),
@@ -44,11 +47,8 @@ const els = {
 };
 
 let applications = readApplications();
-
 let activeStage = "All";
-
 let currentView = "table";
-
 let toastTimer;
 
 function readApplications() {
@@ -503,12 +503,18 @@ function loadDemoData() {
   closeMenus();
 }
 
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  els.themeIcon.textContent = theme === "dark" ? "☀" : "☾";
+  els.themeLabel.textContent = theme === "dark" ? "Light mode" : "Dark mode";
+  localStorage.setItem(THEME_KEY, theme);
+}
+
 els.todayLabel.textContent = new Date().toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" }).toUpperCase();
+applyTheme(localStorage.getItem(THEME_KEY) || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
 
 [els.addButton, els.emptyAdd].forEach((button) => button.addEventListener("click", () => openDialog()));
-
 [els.closeDialog, els.cancelDialog].forEach((button) => button.addEventListener("click", closeDialog));
-
 [els.emptyDemo, els.loadDemo].forEach((button) => button.addEventListener("click", loadDemoData));
 
 els.form.addEventListener("submit", (event) => {
@@ -598,9 +604,7 @@ els.dialog.addEventListener("click", (event) => {
 });
 
 els.exportCsv.addEventListener("click", exportCsv);
-
 els.importCsv.addEventListener("click", () => { closeMenus(); els.csvFile.click(); });
-
 els.csvFile.addEventListener("change", () => {
   const [file] = els.csvFile.files;
   if (file) importCsv(file);
@@ -615,6 +619,10 @@ els.clearData.addEventListener("click", () => {
   applications = [];
   saveApplications("All applications cleared");
   closeMenus();
+});
+
+els.themeToggle.addEventListener("click", () => {
+  applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
 });
 
 render();

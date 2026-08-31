@@ -19,6 +19,23 @@
   --sidebar-text: #f4f1ff;
 }
 
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #111218;
+  --surface: #191a22;
+  --surface-raised: #20212b;
+  --surface-soft: #23242e;
+  --text: #f4f4f7;
+  --muted: #a8a9b5;
+  --faint: #7c7e8c;
+  --border: #30313d;
+  --accent: #8b7cf6;
+  --accent-hover: #9d91fa;
+  --accent-soft: #2d294b;
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+  --sidebar: #0b0c11;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -162,17 +179,11 @@ textarea:focus-visible {
 }
 
 .stage-dot.wishlist { background: #9195a7; }
-
 .stage-dot.applied { background: #6d9bf8; }
-
 .stage-dot.assessment { background: #c58bf4; }
-
 .stage-dot.interview { background: #f2a65a; }
-
 .stage-dot.offer { background: #4cc991; }
-
 .stage-dot.rejected { background: #ef6b7b; }
-
 .stage-dot.withdrawn { background: #786f85; }
 
 .stage-count {
@@ -196,6 +207,19 @@ textarea:focus-visible {
   color: #6f6b7a;
   font-size: 11px;
   line-height: 1.45;
+}
+
+.quiet-button {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 4px;
+  border: 0;
+  color: #aaa6b6;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .main-content {
@@ -299,11 +323,8 @@ textarea:focus-visible {
 }
 
 .accent-purple { color: #7762ed; }
-
 .accent-blue { color: #4687e8; }
-
 .accent-green { color: #2ba970; }
-
 .accent-orange { color: #dc8735; }
 
 .metric-heading {
@@ -592,17 +613,11 @@ tbody tr:hover {
 }
 
 .status-wishlist { --status-color: #7d8292; }
-
 .status-applied { --status-color: #4e83df; }
-
 .status-assessment { --status-color: #a55bd5; }
-
 .status-interview { --status-color: #d9822b; }
-
 .status-offer { --status-color: #239865; }
-
 .status-rejected { --status-color: #d74d61; }
-
 .status-withdrawn { --status-color: #786f85; }
 
 .priority-pill {
@@ -619,9 +634,7 @@ tbody tr:hover {
 }
 
 .priority-high::before { background: #eb5c6e; }
-
 .priority-medium::before { background: #e6a33d; }
-
 .priority-low::before { background: #62a8df; }
 
 .date-cell,
@@ -686,7 +699,6 @@ tbody tr:hover {
 }
 
 .row-menu button:hover { background: var(--surface-soft); }
-
 .row-menu button:last-child { color: #d84058; }
 
 .board-view {

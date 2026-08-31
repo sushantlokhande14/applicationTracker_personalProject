@@ -10,6 +10,7 @@ const els = {
   todayLabel: document.querySelector("#today-label"),
   addButton: document.querySelector("#add-application"),
   emptyAdd: document.querySelector("#empty-add"),
+  emptyDemo: document.querySelector("#empty-demo"),
   dialog: document.querySelector("#application-dialog"),
   form: document.querySelector("#application-form"),
   dialogTitle: document.querySelector("#dialog-title"),
@@ -26,6 +27,13 @@ const els = {
   sort: document.querySelector("#sort-select"),
   resultCount: document.querySelector("#result-count"),
   lastSaved: document.querySelector("#last-saved"),
+  moreButton: document.querySelector("#more-menu-button"),
+  moreMenu: document.querySelector("#more-menu"),
+  exportCsv: document.querySelector("#export-csv"),
+  importCsv: document.querySelector("#import-csv"),
+  csvFile: document.querySelector("#csv-file"),
+  loadDemo: document.querySelector("#load-demo"),
+  clearData: document.querySelector("#clear-data"),
   toast: document.querySelector("#toast"),
   metricTotal: document.querySelector("#metric-total"),
   metricThisWeek: document.querySelector("#metric-this-week"),
@@ -364,11 +372,144 @@ function closeMenus() {
   document.querySelectorAll(".row-menu-button").forEach((button) => button.setAttribute("aria-expanded", "false"));
 }
 
+function csvEscape(value) {
+  const text = String(value ?? "");
+  return /[",\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
+}
+
+function exportCsv() {
+  if (!applications.length) {
+    showToast("Add an application before exporting");
+    return;
+  }
+  const fields = ["company", "role", "status", "priority", "dateApplied", "deadline", "nextAction", "location", "workMode", "jobUrl", "contact", "compensation", "notes"];
+  const rows = [fields.join(","), ...applications.map((item) => fields.map((field) => csvEscape(item[field])).join(","))];
+  const blob = new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `application-tracker-${localDateValue()}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+  closeMenus();
+  showToast("CSV backup downloaded");
+}
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let field = "";
+  let quoted = false;
+  for (let i = 0; i < text.length; i += 1) {
+    const char = text[i];
+    if (char === '"' && quoted && text[i + 1] === '"') {
+      field += '"';
+      i += 1;
+    } else if (char === '"') {
+      quoted = !quoted;
+    } else if (char === "," && !quoted) {
+      row.push(field);
+      field = "";
+    } else if ((char === "\n" || char === "\r") && !quoted) {
+      if (char === "\r" && text[i + 1] === "\n") i += 1;
+      row.push(field);
+      if (row.some((value) => value !== "")) rows.push(row);
+      row = [];
+      field = "";
+    } else {
+      field += char;
+    }
+  }
+  row.push(field);
+  if (row.some((value) => value !== "")) rows.push(row);
+  return rows;
+}
+
+async function importCsv(file) {
+  try {
+    const rows = parseCsv(await file.text());
+    if (rows.length < 2) throw new Error("The CSV has no application rows.");
+    const headers = rows[0].map((header) => header.trim());
+    if (!headers.includes("company") || !headers.includes("role")) {
+      throw new Error("The CSV must include company and role columns.");
+    }
+    const now = new Date().toISOString();
+    const imported = rows.slice(1).map((row) => {
+      const raw = Object.fromEntries(headers.map((header, index) => [header, row[index] || ""]));
+      return {
+        id: uid(),
+        company: raw.company.trim(),
+        role: raw.role.trim(),
+        status: STAGES.includes(raw.status) ? raw.status : "Applied",
+        priority: ["High", "Medium", "Low"].includes(raw.priority) ? raw.priority : "Medium",
+        dateApplied: raw.dateApplied || "",
+        deadline: raw.deadline || "",
+        nextAction: raw.nextAction || "",
+        location: raw.location || "",
+        workMode: raw.workMode || "",
+        jobUrl: raw.jobUrl || "",
+        contact: raw.contact || "",
+        compensation: raw.compensation || "",
+        notes: raw.notes || "",
+        createdAt: now,
+        updatedAt: now,
+      };
+    }).filter((item) => item.company && item.role);
+    applications = [...imported, ...applications];
+    saveApplications(`${imported.length} application${imported.length === 1 ? "" : "s"} imported`);
+  } catch (error) {
+    showToast(error.message || "Could not import that CSV");
+  } finally {
+    els.csvFile.value = "";
+  }
+}
+
+function demoData() {
+  const today = new Date();
+  const dateOffset = (days) => {
+    const date = new Date(today);
+    date.setDate(date.getDate() + days);
+    return localDateValue(date);
+  };
+  const now = new Date().toISOString();
+  return [
+    {
+      id: uid(), company: "Cloudflare", role: "Software Engineer, Realtime", status: "Interview", priority: "High",
+      dateApplied: dateOffset(-12), deadline: dateOffset(2), nextAction: "Prepare system design stories", location: "New York, NY",
+      workMode: "Hybrid", jobUrl: "", contact: "Recruiting team", compensation: "$150k–$190k", notes: "Review WebRTC, QUIC, and Media over QUIC fundamentals.", createdAt: now, updatedAt: now,
+    },
+    {
+      id: uid(), company: "Vercel", role: "Backend Engineer", status: "Applied", priority: "High",
+      dateApplied: dateOffset(-4), deadline: dateOffset(3), nextAction: "Follow up with recruiter", location: "Remote",
+      workMode: "Remote", jobUrl: "", contact: "", compensation: "", notes: "Applied through company portal.", createdAt: now, updatedAt: now,
+    },
+    {
+      id: uid(), company: "Datadog", role: "Software Engineer — Streaming", status: "Assessment", priority: "Medium",
+      dateApplied: dateOffset(-8), deadline: dateOffset(1), nextAction: "Complete coding assessment", location: "Boston, MA",
+      workMode: "Hybrid", jobUrl: "", contact: "", compensation: "", notes: "", createdAt: now, updatedAt: now,
+    },
+    {
+      id: uid(), company: "Figma", role: "Software Engineer, Infrastructure", status: "Wishlist", priority: "Medium",
+      dateApplied: "", deadline: "", nextAction: "Request referral", location: "San Francisco, CA",
+      workMode: "Hybrid", jobUrl: "", contact: "", compensation: "", notes: "Tailor resume before applying.", createdAt: now, updatedAt: now,
+    },
+  ];
+}
+
+function loadDemoData() {
+  if (applications.length && !confirm("Add demo applications to your existing tracker?")) return;
+  applications = [...demoData(), ...applications];
+  saveApplications("Demo applications added");
+  closeMenus();
+}
+
 els.todayLabel.textContent = new Date().toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" }).toUpperCase();
 
 [els.addButton, els.emptyAdd].forEach((button) => button.addEventListener("click", () => openDialog()));
 
 [els.closeDialog, els.cancelDialog].forEach((button) => button.addEventListener("click", closeDialog));
+
+[els.emptyDemo, els.loadDemo].forEach((button) => button.addEventListener("click", loadDemoData));
 
 els.form.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -405,6 +546,14 @@ document.querySelectorAll(".view-tab").forEach((button) => {
 });
 
 [els.search, els.priorityFilter, els.sort].forEach((control) => control.addEventListener("input", render));
+
+els.moreButton.addEventListener("click", (event) => {
+  event.stopPropagation();
+  const willOpen = els.moreMenu.hidden;
+  closeMenus();
+  els.moreMenu.hidden = !willOpen;
+  els.moreButton.setAttribute("aria-expanded", String(willOpen));
+});
 
 els.tableBody.addEventListener("click", (event) => {
   const row = event.target.closest("tr[data-id]");
@@ -446,6 +595,26 @@ document.addEventListener("click", (event) => {
 
 els.dialog.addEventListener("click", (event) => {
   if (event.target === els.dialog) closeDialog();
+});
+
+els.exportCsv.addEventListener("click", exportCsv);
+
+els.importCsv.addEventListener("click", () => { closeMenus(); els.csvFile.click(); });
+
+els.csvFile.addEventListener("change", () => {
+  const [file] = els.csvFile.files;
+  if (file) importCsv(file);
+});
+
+els.clearData.addEventListener("click", () => {
+  if (!applications.length) {
+    showToast("The tracker is already empty");
+    return;
+  }
+  if (!confirm("Clear every application? Export a CSV first if you want a backup.")) return;
+  applications = [];
+  saveApplications("All applications cleared");
+  closeMenus();
 });
 
 render();

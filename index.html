@@ -118,6 +118,16 @@
                 <option value="deadline-asc">Next deadline</option>
                 <option value="company-asc">Company A–Z</option>
               </select>
+              <div class="menu-wrap">
+                <button id="more-menu-button" class="icon-button" type="button" aria-label="More actions" aria-expanded="false">•••</button>
+                <div id="more-menu" class="dropdown-menu" hidden>
+                  <button id="export-csv" type="button">Export CSV</button>
+                  <button id="import-csv" type="button">Import CSV</button>
+                  <button id="load-demo" type="button">Load demo data</button>
+                  <button id="clear-data" class="danger-text" type="button">Clear all data</button>
+                </div>
+              </div>
+              <input id="csv-file" type="file" accept=".csv,text/csv" hidden />
             </div>
           </div>
 
@@ -149,6 +159,7 @@
             <p>Add your first opportunity or load demo data to explore the tracker.</p>
             <div class="empty-actions">
               <button class="primary-button" id="empty-add" type="button">Add application</button>
+              <button class="secondary-button" id="empty-demo" type="button">Load demo</button>
             </div>
           </div>
 

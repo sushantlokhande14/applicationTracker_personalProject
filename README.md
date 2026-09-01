@@ -40,6 +40,3 @@ Because browser storage can be cleared, use **More → Export CSV** periodically
 └── README.md
 ```
 
-## License
-
-Private personal project. All rights reserved.
